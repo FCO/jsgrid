@@ -11,9 +11,9 @@ my $decrease_percent = .1;
 has 'aid'             => ( is => 'ro', isa => 'Str', required => 1 ) ;
 has 'runned'          => ( is => 'rw', isa => 'Mongoose::Join[jsgrid::Run]' ) ;
 has 'running'         => ( is => 'rw', isa => 'jsgrid::Run' ) ;
-has 'disconfiability' => ( is => 'ro', isa => 'Real', default => 0.1 ) ;
-has 'state'           => ( is => 'rw', isa => enum( [ qw|idle waiting running done| ]
-), default => 'idle' ) ;
+has 'disconfiability' => ( is => 'ro', isa => 'Num', default => 0.1 ) ;
+has 'state'           => ( is => 'rw', isa => enum( [ qw|idle waiting running done| ]), default => 'idle' ) ;
+has 'active'          => ( is => 'rw', isa => 'Bool', default => 1 ) ;
 
 sub encrease_confiability { 
    my $self = shift;
