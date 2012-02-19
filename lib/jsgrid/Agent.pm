@@ -4,7 +4,7 @@ use Moose;
 use Moose::Util::TypeConstraints;
 use DateTime;
 
-with 'Mongoose::Document' => { -pk => [ qw/aid/ ]  } ;
+with 'Mongoose::Document';
 
 my $encrease_percent = .5;
 my $decrease_percent = .1;
@@ -12,10 +12,10 @@ my $decrease_percent = .1;
 has 'runned'          => ( is => 'rw', isa => 'Mongoose::Join[jsgrid::Run]' ) ;
 has 'running'         => ( is => 'rw', isa => 'jsgrid::Run' ) ;
 has 'disconfiability' => ( is => 'ro', isa => 'Num', default => 0.1 ) ;
-has 'state'           => ( is => 'rw', isa => enum( [ qw|initializing idle waiting
-running done| ]), default => 'initializing' ) ;
+has 'state'           => ( is => 'rw', isa => enum( [ qw|initializing idle waiting running done| ]), default => 'initializing' ) ;
 has 'active'          => ( is => 'rw', isa => 'Bool', default => 1 ) ;
 has 'connected_date'  => ( is => 'rw', isa => 'DateTime', traits => [ qw/Raw/ ], default => sub{ DateTime->now }   ) ;
+has 'sock'            => ( is => 'rw', isa => 'Object' ) ;
 
 sub aid{
    my $self = shift;

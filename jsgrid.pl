@@ -1,10 +1,23 @@
 #!/usr/bin/perl
 
 use Mojolicious::Lite;
+use lib "lib";
+use jsgrid::Agent::Manager;
 
 my %agent;
 my @jobs;
 my %jnames;
+
+my $agent_manager = jsgrid::Agent::Manager->new;
+
+get "/agent" => sub {
+   my $self = shift;
+
+   my $new_agent = $agent_manager->new_agent;
+   my $aid       = $new_agent->aid;
+   my $url       = $self->url_for("websocket")->to_abs . $aid;
+   $self->render( "agent", aid => $aid, url => $url );
+};
 
 websocket "/agent/:aid" => sub{
    my $self = shift;
@@ -13,7 +26,7 @@ websocket "/agent/:aid" => sub{
 
    $self->on(message => sub{
    });
-};
+} => "websocket";
 
 any "/add/job" => sub {
    my $self = shift;
@@ -31,3 +44,9 @@ get "/job/:jid" => sub {
 };
 
 app->start;
+
+__DATA__
+
+@@ agent.js.ep
+var ws = new WebSocket("<%= $url =%>");
+

@@ -30,22 +30,25 @@ sub new_agent {
 sub get_agent {
    my $self = shift;
    my $aid  = shift;
-   $self->agent_collection->find_one( $self->create_idobj( $aid ) ) 
+   my $id = $self->create_idobj( $aid );
+   my $ret = $self->agent_collection->find_one( { _id => $id } ) ;
+   die "This Agent does not exists..." unless $ret;
+   $ret
 }
 
 sub create_idobj {
    my $self = shift;
    my $val  = shift;
-   MongoDB::OID->new(  value => $self->get_id_from( $val )  )
+   MongoDB::OID->new( value => $self->get_id_from( $val ) )
 }
 
 sub get_id_from {
    my $self = shift;
    my $aid  = shift;
-   if( defined ref($aid) ) {
-      if( ref($aid) eq "MongoDB::OID" ) {
+   if( ref($aid) ) {
+      if( $aid->isa( "MongoDB::OID" ) ) {
          return $aid->value;
-         if( $aid->can( "aid" ) ) {
+         if( $aid->isa( __PACKAGE__ ) ) {
             return $aid->aid;
          } else {
             die "bla";
