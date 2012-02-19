@@ -10,6 +10,11 @@ my %jnames;
 
 my $agent_manager = jsgrid::Agent::Manager->new;
 
+get "/" => sub {
+   my $self = shift;
+   $self->render("index");
+} => "index";
+
 get "/agent" => sub {
    my $self = shift;
 
@@ -17,14 +22,23 @@ get "/agent" => sub {
    my $aid       = $new_agent->aid;
    my $url       = $self->url_for("websocket")->to_abs . $aid;
    $self->render( "agent", aid => $aid, url => $url );
-};
+} => "agent";
 
 websocket "/agent/:aid" => sub{
    my $self = shift;
 
-   $agent{ $self->stash->{aid} } = shift;
+   my $agent = $agent_manager->get_agent( $self->stash->{aid} );
+   $agent->sock( $self );
 
-   $self->on(message => sub{
+   app->log->debug("AID: " . $agent->aid);
+
+   $self->on_message(sub{
+      my $self = shift;
+      my $msg  = shift;
+
+      my($cmd, @pars) = split /\s+/, $msg;
+
+      
    });
 } => "websocket";
 
@@ -46,6 +60,13 @@ get "/job/:jid" => sub {
 app->start;
 
 __DATA__
+
+@@ index.html.ep
+<html>
+   <body>
+      <script src="<%= url_for("agent.js") =%>"></script>
+   </body>
+</html>
 
 @@ agent.js.ep
 var ws = new WebSocket("<%= $url =%>");
