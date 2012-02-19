@@ -3,6 +3,7 @@ package jsgrid::Agent;
 use Moose;
 use Moose::Util::TypeConstraints;
 use DateTime;
+use Carp;
 
 with 'Mongoose::Document';
 
@@ -16,6 +17,11 @@ has 'state'           => ( is => 'rw', isa => enum( [ qw|initializing idle waiti
 has 'active'          => ( is => 'rw', isa => 'Bool', default => 1 ) ;
 has 'connected_date'  => ( is => 'rw', isa => 'DateTime', traits => [ qw/Raw/ ], default => sub{ DateTime->now }   ) ;
 has 'sock'            => ( is => 'rw', isa => 'Object' ) ;
+
+before 'sock' => sub {
+   my $self = shift;
+   croak "Trying to change sock" if @_ and defined $self->{sock};
+};
 
 sub aid{
    my $self = shift;

@@ -1,5 +1,6 @@
 #!/usr/bin/perl
 
+use v5.10;
 use Mojolicious::Lite;
 use lib "lib";
 use jsgrid::Agent::Manager;
@@ -9,6 +10,8 @@ my @jobs;
 my %jnames;
 
 my $agent_manager = jsgrid::Agent::Manager->new;
+
+@ARGV = qw( daemon ) unless @ARGV;
 
 get "/" => sub {
    my $self = shift;
@@ -32,13 +35,26 @@ websocket "/agent/:aid" => sub{
 
    app->log->debug("AID: " . $agent->aid);
 
+   #$self->send_message("bla");
+
+   $self->on_finish( sub {
+      app->log->debug("client disconnected");
+   } );
+
    $self->on_message(sub{
       my $self = shift;
       my $msg  = shift;
 
       my($cmd, @pars) = split /\s+/, $msg;
 
-      
+      given( $cmd ) {
+         when( "STAT" ) {
+            $agent->status(shift @pars);
+         };
+         default {
+            app->log->debug("Command not recognized: $cmd");
+         };
+      }
    });
 } => "websocket";
 
@@ -70,4 +86,12 @@ __DATA__
 
 @@ agent.js.ep
 var ws = new WebSocket("<%= $url =%>");
+//alert("<%= $url =%>");
+ws.onopen = function() {
+   alert("connected");
+};
+ws.onmessage = function(msg) {
+   alert(msg.data);
+};
+setTimeout(function(){alert("sending"); ws.send("BLA ble")}, 5000);
 
